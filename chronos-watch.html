@@ -1,0 +1,1569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CHRONOS — Precision in Motion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Bebas+Neue&family=Montserrat:wght@200;300;400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --gold: #C9A96E;
+    --gold-light: #E8C98A;
+    --gold-dark: #8B6914;
+    --steel: #9EA8B3;
+    --steel-dark: #4A5568;
+    --bg: #080808;
+    --bg2: #0E0E0E;
+    --white: #F5F0E8;
+    --ruby: #9B2335;
+  }
+
+  html { scroll-behavior: auto; }
+
+  body {
+    background: var(--bg);
+    color: var(--white);
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 200;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* Custom cursor */
+  #cursor {
+    position: fixed;
+    width: 8px; height: 8px;
+    background: var(--gold);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: transform 0.1s, width 0.3s, height 0.3s, background 0.3s;
+  }
+  #cursor-ring {
+    position: fixed;
+    width: 32px; height: 32px;
+    border: 1px solid rgba(201,169,110,0.5);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: transform 0.15s ease-out, width 0.3s, height 0.3s;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 28px 60px;
+    background: linear-gradient(180deg, rgba(8,8,8,0.9) 0%, transparent 100%);
+  }
+  .nav-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 8px;
+    color: var(--gold);
+  }
+  .nav-links {
+    display: flex; gap: 48px; list-style: none;
+  }
+  .nav-links a {
+    color: rgba(245,240,232,0.6);
+    text-decoration: none;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    transition: color 0.3s;
+  }
+  .nav-links a:hover { color: var(--gold); }
+
+  /* HERO */
+  #hero {
+    height: 100vh;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    position: relative; overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 60% 60% at 50% 50%, rgba(201,169,110,0.07) 0%, transparent 70%);
+  }
+  .hero-lines {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(201,169,110,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(201,169,110,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+  .hero-content {
+    position: relative; z-index: 2;
+    text-align: center;
+  }
+  .hero-eyebrow {
+    font-size: 10px; letter-spacing: 6px; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 32px; opacity: 0;
+    font-weight: 300;
+  }
+  .hero-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(56px, 9vw, 130px);
+    font-weight: 300;
+    line-height: 0.9;
+    letter-spacing: -2px;
+    color: var(--white);
+    opacity: 0;
+    margin-bottom: 8px;
+  }
+  .hero-title em {
+    font-style: italic;
+    color: var(--gold-light);
+  }
+  .hero-subtitle {
+    font-size: 12px; letter-spacing: 5px; text-transform: uppercase;
+    color: rgba(245,240,232,0.4);
+    margin-top: 28px; opacity: 0;
+    font-weight: 300;
+  }
+  .scroll-hint {
+    position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-size: 9px; letter-spacing: 4px; text-transform: uppercase;
+    color: rgba(245,240,232,0.3);
+    opacity: 0;
+  }
+  .scroll-line {
+    width: 1px; height: 48px;
+    background: linear-gradient(180deg, var(--gold) 0%, transparent 100%);
+    animation: scrollPulse 2s ease-in-out infinite;
+  }
+  @keyframes scrollPulse {
+    0%, 100% { opacity: 0.3; transform: scaleY(1); }
+    50% { opacity: 1; transform: scaleY(1.2); }
+  }
+
+  /* WATCH SVG STAGE */
+  #watch-stage {
+    position: relative;
+    height: 100vh;
+    display: flex; justify-content: center; align-items: center;
+    overflow: hidden;
+  }
+  #watch-svg-container {
+    position: relative;
+    width: 420px; height: 420px;
+  }
+  #watch-svg-container svg {
+    width: 100%; height: 100%;
+    filter: drop-shadow(0 0 40px rgba(201,169,110,0.15));
+  }
+
+  /* EXPLODE SECTIONS */
+  #explode-wrapper {
+    position: relative;
+    height: 700vh;
+  }
+  #explode-sticky {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+  }
+  #explode-stage {
+    position: relative;
+    width: 520px; height: 520px;
+  }
+
+  /* Step labels */
+  .step-label {
+    position: fixed;
+    left: 60px;
+    bottom: 120px;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 50;
+  }
+  .step-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--gold);
+    margin-bottom: 8px;
+  }
+  .step-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 36px;
+    font-weight: 300;
+    color: var(--white);
+    line-height: 1.1;
+  }
+  .step-desc {
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: rgba(245,240,232,0.4);
+    margin-top: 8px;
+    max-width: 220px;
+    line-height: 1.8;
+  }
+
+  /* SPECS SECTION */
+  #specs {
+    padding: 160px 60px;
+    background: var(--bg2);
+    position: relative;
+  }
+  .specs-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 1px;
+    border: 1px solid rgba(201,169,110,0.1);
+    margin-top: 80px;
+  }
+  .spec-item {
+    padding: 48px 40px;
+    border: 1px solid rgba(201,169,110,0.08);
+    position: relative;
+    overflow: hidden;
+  }
+  .spec-item::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    transform: translateX(-100%);
+    transition: transform 0.8s ease;
+  }
+  .spec-item:hover::before { transform: translateX(0); }
+  .spec-value {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 48px;
+    font-weight: 300;
+    color: var(--gold-light);
+    line-height: 1;
+  }
+  .spec-label {
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(245,240,232,0.4);
+    margin-top: 12px;
+  }
+  .section-label {
+    font-size: 10px; letter-spacing: 6px; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 20px;
+  }
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(40px, 5vw, 72px);
+    font-weight: 300;
+    color: var(--white);
+    line-height: 1.1;
+  }
+
+  /* FINAL SECTION */
+  #finale {
+    height: 100vh;
+    display: flex; justify-content: center; align-items: center;
+    background: radial-gradient(ellipse 80% 60% at 50% 50%, rgba(201,169,110,0.05) 0%, transparent 70%);
+    text-align: center;
+    position: relative;
+  }
+  .finale-content { position: relative; z-index: 2; }
+  .finale-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(48px, 8vw, 100px);
+    font-weight: 300;
+    font-style: italic;
+    color: var(--white);
+    margin-bottom: 32px;
+  }
+  .btn-gold {
+    display: inline-block;
+    padding: 16px 48px;
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    font-size: 10px;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: none;
+    position: relative;
+    overflow: hidden;
+    transition: color 0.4s;
+  }
+  .btn-gold::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: var(--gold);
+    transform: translateX(-101%);
+    transition: transform 0.4s ease;
+  }
+  .btn-gold:hover { color: #080808; }
+  .btn-gold:hover::after { transform: translateX(0); }
+  .btn-gold span { position: relative; z-index: 1; }
+
+  /* Progress bar */
+  #progress {
+    position: fixed; top: 0; left: 0; right: 0; height: 1px;
+    background: rgba(201,169,110,0.1);
+    z-index: 200;
+  }
+  #progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold-dark), var(--gold-light));
+    width: 0%;
+    transition: width 0.1s;
+  }
+
+  /* Floating particles */
+  .particle {
+    position: fixed;
+    width: 2px; height: 2px;
+    background: var(--gold);
+    border-radius: 50%;
+    pointer-events: none;
+    opacity: 0;
+    z-index: 1;
+  }
+
+  /* Watch component parts on explode stage */
+  .w-part {
+    position: absolute;
+    transform-origin: center;
+    transition: filter 0.3s;
+  }
+
+  /* Glow effect */
+  @keyframes glowPulse {
+    0%, 100% { filter: drop-shadow(0 0 20px rgba(201,169,110,0.2)); }
+    50% { filter: drop-shadow(0 0 50px rgba(201,169,110,0.5)); }
+  }
+
+  .assembled-glow {
+    animation: glowPulse 3s ease-in-out infinite;
+  }
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+<div id="progress"><div id="progress-bar"></div></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">CHRONOS</div>
+  <ul class="nav-links">
+    <li><a href="#">Craftsmanship</a></li>
+    <li><a href="#">Movement</a></li>
+    <li><a href="#">Collections</a></li>
+    <li><a href="#">Atelier</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-lines"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow" id="eyebrow">Swiss Mechanical Excellence · Est. MCMXXIV</div>
+    <h1 class="hero-title" id="htitle">Precision<br><em>in Motion</em></h1>
+    <p class="hero-subtitle" id="hsubtitle">Crafted Mechanical Excellence — Hand-Assembled in Geneva</p>
+  </div>
+  <div class="scroll-hint" id="scrollhint">
+    <div class="scroll-line"></div>
+    <span>Scroll</span>
+  </div>
+  <!-- Hero watch preview -->
+  <div id="watch-stage">
+    <div id="watch-svg-container">
+      <svg viewBox="0 0 420 420" xmlns="http://www.w3.org/2000/svg" id="herowatch">
+        <!-- Watch assembled preview -->
+        <defs>
+          <radialGradient id="caseGrad" cx="40%" cy="35%">
+            <stop offset="0%" stop-color="#E8C98A"/>
+            <stop offset="40%" stop-color="#C9A96E"/>
+            <stop offset="100%" stop-color="#5A3E0A"/>
+          </radialGradient>
+          <radialGradient id="dialGrad" cx="45%" cy="40%">
+            <stop offset="0%" stop-color="#1A1A1A"/>
+            <stop offset="100%" stop-color="#080808"/>
+          </radialGradient>
+          <radialGradient id="glassGrad" cx="35%" cy="30%">
+            <stop offset="0%" stop-color="rgba(255,255,255,0.15)"/>
+            <stop offset="100%" stop-color="rgba(255,255,255,0.02)"/>
+          </radialGradient>
+          <filter id="softglow">
+            <feGaussianBlur stdDeviation="3" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <filter id="metalsheen">
+            <feGaussianBlur stdDeviation="1.5" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <!-- Leather strap gradient -->
+          <linearGradient id="strapGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#1A0F05"/>
+            <stop offset="30%" stop-color="#2D1E0A"/>
+            <stop offset="70%" stop-color="#2D1E0A"/>
+            <stop offset="100%" stop-color="#1A0F05"/>
+          </linearGradient>
+        </defs>
+
+        <!-- Top strap -->
+        <rect x="168" y="20" width="84" height="110" rx="6" fill="url(#strapGrad)"/>
+        <rect x="175" y="25" width="70" height="100" rx="4" fill="none" stroke="rgba(201,169,110,0.15)" stroke-width="1"/>
+        <!-- Strap holes -->
+        <circle cx="210" cy="55" r="2.5" fill="#080808"/>
+        <circle cx="210" cy="70" r="2.5" fill="#080808"/>
+        <circle cx="210" cy="85" r="2.5" fill="#080808"/>
+        <circle cx="210" cy="100" r="2.5" fill="#080808"/>
+        <!-- Strap texture lines -->
+        <line x1="173" y1="35" x2="247" y2="35" stroke="rgba(201,169,110,0.07)" stroke-width="1"/>
+        <line x1="173" y1="45" x2="247" y2="45" stroke="rgba(201,169,110,0.07)" stroke-width="1"/>
+        <line x1="173" y1="55" x2="247" y2="55" stroke="rgba(201,169,110,0.05)" stroke-width="1"/>
+        <line x1="173" y1="65" x2="247" y2="65" stroke="rgba(201,169,110,0.05)" stroke-width="1"/>
+
+        <!-- Bottom strap -->
+        <rect x="168" y="290" width="84" height="110" rx="6" fill="url(#strapGrad)"/>
+        <rect x="175" y="295" width="70" height="100" rx="4" fill="none" stroke="rgba(201,169,110,0.15)" stroke-width="1"/>
+        <circle cx="210" cy="320" r="2.5" fill="#080808"/>
+        <circle cx="210" cy="335" r="2.5" fill="#080808"/>
+        <circle cx="210" cy="350" r="2.5" fill="#080808"/>
+        <circle cx="210" cy="365" r="2.5" fill="#080808"/>
+        <line x1="173" y1="310" x2="247" y2="310" stroke="rgba(201,169,110,0.07)" stroke-width="1"/>
+        <line x1="173" y1="320" x2="247" y2="320" stroke="rgba(201,169,110,0.07)" stroke-width="1"/>
+
+        <!-- Lugs -->
+        <rect x="158" y="118" width="24" height="28" rx="4" fill="url(#caseGrad)"/>
+        <rect x="238" y="118" width="24" height="28" rx="4" fill="url(#caseGrad)"/>
+        <rect x="158" y="274" width="24" height="28" rx="4" fill="url(#caseGrad)"/>
+        <rect x="238" y="274" width="24" height="28" rx="4" fill="url(#caseGrad)"/>
+
+        <!-- Case outer ring -->
+        <circle cx="210" cy="210" r="110" fill="url(#caseGrad)" filter="url(#metalsheen)"/>
+        <!-- Case bevel -->
+        <circle cx="210" cy="210" r="110" fill="none" stroke="#E8C98A" stroke-width="2" opacity="0.6"/>
+        <!-- Case body -->
+        <circle cx="210" cy="210" r="104" fill="#1C1208"/>
+        <circle cx="210" cy="210" r="100" fill="#0D0D0D"/>
+
+        <!-- Bezel ring -->
+        <circle cx="210" cy="210" r="99" fill="none" stroke="url(#caseGrad)" stroke-width="6"/>
+        <!-- Bezel minute markers -->
+        <g id="bezel-markers">
+          <script type="text/javascript">
+            /* rendered below */
+          </script>
+        </g>
+
+        <!-- Minute markers around bezel (60 marks) -->
+        <g transform="translate(210,210)">
+          <!-- Generate marks via calculated positions -->
+          <line x1="0" y1="-92" x2="0" y2="-86" stroke="#C9A96E" stroke-width="1.5" transform="rotate(0)"/>
+          <line x1="0" y1="-92" x2="0" y2="-88" stroke="#C9A96E" stroke-width="0.8" transform="rotate(6)"/>
+          <line x1="0" y1="-92" x2="0" y2="-88" stroke="#C9A96E" stroke-width="0.8" transform="rotate(12)"/>
+          <line x1="0" y1="-92" x2="0" y2="-88" stroke="#C9A96E" stroke-width="0.8" transform="rotate(18)"/>
+          <line x1="0" y1="-92" x2="0" y2="-88" stroke="#C9A96E" stroke-width="0.8" transform="rotate(24)"/>
+          <line x1="0" y1="-92" x2="0" y2="-86" stroke="#C9A96E" stroke-width="1.5" transform="rotate(30)"/>
+          <line x1="0" y1="-92" x2="0" y2="-88" stroke="#C9A96E" stroke-width="0.8" transform="rotate(36)"/>
+          <line x1="0" y1="-92" x2="0" y2="-88" stroke="#C9A96E" stroke-width="0.8" transform="rotate(42)"/>
+          <line x1="0" y1="-92" x2="0" y2="-88" stroke="#C9A96E" stroke-width="0.8" transform="rotate(48)"/>
+          <line x1="0" y1="-92" x2="0" y2="-88" stroke="#C9A96E" stroke-width="0.8" transform="rotate(54)"/>
+          <line x1="0" y1="-92" x2="0" y2="-86" stroke="#C9A96E" stroke-width="1.5" transform="rotate(60)"/>
+          <line x1="0" y1="-92" x2="0" y2="-88" stroke="#C9A96E" stroke-width="0.8" transform="rotate(66)"/>
+          <line x1="0" y1="-92" x2="0" y2="-88" stroke="#C9A96E" stroke-width="0.8" transform="rotate(72)"/>
+          <line x1="0" y1="-92" x2="0" y2="-88" stroke="#C9A96E" stroke-width="0.8" transform="rotate(78)"/>
+          <line x1="0" y1="-92" x2="0" y2="-88" stroke="#C9A96E" stroke-width="0.8" transform="rotate(84)"/>
+          <line x1="0" y1="-92" x2="0" y2="-86" stroke="#C9A96E" stroke-width="1.5" transform="rotate(90)"/>
+          <line x1="0" y1="-92" x2="0" y2="-88" stroke="#C9A96E" stroke-width="0.8" transform="rotate(96)"/>
+          <line x1="0" y1="-92" x2="0" y2="-88" stroke="#C9A96E" stroke-width="0.8" transform="rotate(102)"/>
+          <line x1="0" y1="-92" x2="0" y2="-88" stroke="#C9A96E" stroke-width="0.8" transform="rotate(108)"/>
+          <line x1="0" y1="-92" x2="0" y2="-88" stroke="#C9A96E" stroke-width="0.8" transform="rotate(114)"/>
+          <line x1="0" y1="-92" x2="0" y2="-86" stroke="#C9A96E" stroke-width="1.5" transform="rotate(120)"/>
+          <line x1="0" y1="-92" x2="0" y2="-88" stroke="#C9A96E" stroke-width="0.8" transform="rotate(126)"/>
+          <line x1="0" y1="-92" x2="0" y2="-88" stroke="#C9A96E" stroke-width="0.8" transform="rotate(132)"/>
+          <line x1="0" y1="-92" x2="0" y2="-88" stroke="#C9A96E" stroke-width="0.8" transform="rotate(138)"/>
+          <line x1="0" y1="-92" x2="0" y2="-88" stroke="#C9A96E" stroke-width="0.8" transform="rotate(144)"/>
+          <line x1="0" y1="-92" x2="0" y2="-86" stroke="#C9A96E" stroke-width="1.5" transform="rotate(150)"/>
+          <line x1="0" y1="-92" x2="0" y2="-88" stroke="#C9A96E" stroke-width="0.8" transform="rotate(156)"/>
+          <line x1="0" y1="-92" x2="0" y2="-88" stroke="#C9A96E" stroke-width="0.8" transform="rotate(162)"/>
+          <line x1="0" y1="-92" x2="0" y2="-88" stroke="#C9A96E" stroke-width="0.8" transform="rotate(168)"/>
+          <line x1="0" y1="-92" x2="0" y2="-88" stroke="#C9A96E" stroke-width="0.8" transform="rotate(174)"/>
+          <line x1="0" y1="-92" x2="0" y2="-86" stroke="#C9A96E" stroke-width="1.5" transform="rotate(180)"/>
+          <line x1="0" y1="-92" x2="0" y2="-88" stroke="#C9A96E" stroke-width="0.8" transform="rotate(186)"/>
+          <line x1="0" y1="-92" x2="0" y2="-88" stroke="#C9A96E" stroke-width="0.8" transform="rotate(192)"/>
+          <line x1="0" y1="-92" x2="0" y2="-88" stroke="#C9A96E" stroke-width="0.8" transform="rotate(198)"/>
+          <line x1="0" y1="-92" x2="0" y2="-88" stroke="#C9A96E" stroke-width="0.8" transform="rotate(204)"/>
+          <line x1="0" y1="-92" x2="0" y2="-86" stroke="#C9A96E" stroke-width="1.5" transform="rotate(210)"/>
+          <line x1="0" y1="-92" x2="0" y2="-88" stroke="#C9A96E" stroke-width="0.8" transform="rotate(216)"/>
+          <line x1="0" y1="-92" x2="0" y2="-88" stroke="#C9A96E" stroke-width="0.8" transform="rotate(222)"/>
+          <line x1="0" y1="-92" x2="0" y2="-88" stroke="#C9A96E" stroke-width="0.8" transform="rotate(228)"/>
+          <line x1="0" y1="-92" x2="0" y2="-88" stroke="#C9A96E" stroke-width="0.8" transform="rotate(234)"/>
+          <line x1="0" y1="-92" x2="0" y2="-86" stroke="#C9A96E" stroke-width="1.5" transform="rotate(240)"/>
+          <line x1="0" y1="-92" x2="0" y2="-88" stroke="#C9A96E" stroke-width="0.8" transform="rotate(246)"/>
+          <line x1="0" y1="-92" x2="0" y2="-88" stroke="#C9A96E" stroke-width="0.8" transform="rotate(252)"/>
+          <line x1="0" y1="-92" x2="0" y2="-88" stroke="#C9A96E" stroke-width="0.8" transform="rotate(258)"/>
+          <line x1="0" y1="-92" x2="0" y2="-88" stroke="#C9A96E" stroke-width="0.8" transform="rotate(264)"/>
+          <line x1="0" y1="-92" x2="0" y2="-86" stroke="#C9A96E" stroke-width="1.5" transform="rotate(270)"/>
+          <line x1="0" y1="-92" x2="0" y2="-88" stroke="#C9A96E" stroke-width="0.8" transform="rotate(276)"/>
+          <line x1="0" y1="-92" x2="0" y2="-88" stroke="#C9A96E" stroke-width="0.8" transform="rotate(282)"/>
+          <line x1="0" y1="-92" x2="0" y2="-88" stroke="#C9A96E" stroke-width="0.8" transform="rotate(288)"/>
+          <line x1="0" y1="-92" x2="0" y2="-88" stroke="#C9A96E" stroke-width="0.8" transform="rotate(294)"/>
+          <line x1="0" y1="-92" x2="0" y2="-86" stroke="#C9A96E" stroke-width="1.5" transform="rotate(300)"/>
+          <line x1="0" y1="-92" x2="0" y2="-88" stroke="#C9A96E" stroke-width="0.8" transform="rotate(306)"/>
+          <line x1="0" y1="-92" x2="0" y2="-88" stroke="#C9A96E" stroke-width="0.8" transform="rotate(312)"/>
+          <line x1="0" y1="-92" x2="0" y2="-88" stroke="#C9A96E" stroke-width="0.8" transform="rotate(318)"/>
+          <line x1="0" y1="-92" x2="0" y2="-88" stroke="#C9A96E" stroke-width="0.8" transform="rotate(324)"/>
+          <line x1="0" y1="-92" x2="0" y2="-86" stroke="#C9A96E" stroke-width="1.5" transform="rotate(330)"/>
+          <line x1="0" y1="-92" x2="0" y2="-88" stroke="#C9A96E" stroke-width="0.8" transform="rotate(336)"/>
+          <line x1="0" y1="-92" x2="0" y2="-88" stroke="#C9A96E" stroke-width="0.8" transform="rotate(342)"/>
+          <line x1="0" y1="-92" x2="0" y2="-88" stroke="#C9A96E" stroke-width="0.8" transform="rotate(348)"/>
+          <line x1="0" y1="-92" x2="0" y2="-88" stroke="#C9A96E" stroke-width="0.8" transform="rotate(354)"/>
+        </g>
+
+        <!-- Dial / skeleton view -->
+        <circle cx="210" cy="210" r="84" fill="#0A0A0A"/>
+        <!-- Main plate texture -->
+        <circle cx="210" cy="210" r="82" fill="none" stroke="rgba(201,169,110,0.12)" stroke-width="1"/>
+
+        <!-- MOVEMENT COMPONENTS — Skeleton bridges -->
+        <!-- Main plate ring -->
+        <circle cx="210" cy="210" r="76" fill="none" stroke="rgba(201,169,110,0.2)" stroke-width="2" stroke-dasharray="8,4"/>
+
+        <!-- Mainspring barrel (large gear at left) -->
+        <g transform="translate(175,210)">
+          <circle r="28" fill="#1A1208" stroke="#C9A96E" stroke-width="1.5"/>
+          <circle r="22" fill="none" stroke="rgba(201,169,110,0.4)" stroke-width="1"/>
+          <circle r="16" fill="#121008" stroke="#C9A96E" stroke-width="1"/>
+          <!-- Barrel gear teeth -->
+          <g id="barrel-teeth">
+            <rect x="-2" y="-30" width="4" height="6" rx="1" fill="#C9A96E" transform="rotate(0)"/>
+            <rect x="-2" y="-30" width="4" height="6" rx="1" fill="#C9A96E" transform="rotate(22.5)"/>
+            <rect x="-2" y="-30" width="4" height="6" rx="1" fill="#C9A96E" transform="rotate(45)"/>
+            <rect x="-2" y="-30" width="4" height="6" rx="1" fill="#C9A96E" transform="rotate(67.5)"/>
+            <rect x="-2" y="-30" width="4" height="6" rx="1" fill="#C9A96E" transform="rotate(90)"/>
+            <rect x="-2" y="-30" width="4" height="6" rx="1" fill="#C9A96E" transform="rotate(112.5)"/>
+            <rect x="-2" y="-30" width="4" height="6" rx="1" fill="#C9A96E" transform="rotate(135)"/>
+            <rect x="-2" y="-30" width="4" height="6" rx="1" fill="#C9A96E" transform="rotate(157.5)"/>
+            <rect x="-2" y="-30" width="4" height="6" rx="1" fill="#C9A96E" transform="rotate(180)"/>
+            <rect x="-2" y="-30" width="4" height="6" rx="1" fill="#C9A96E" transform="rotate(202.5)"/>
+            <rect x="-2" y="-30" width="4" height="6" rx="1" fill="#C9A96E" transform="rotate(225)"/>
+            <rect x="-2" y="-30" width="4" height="6" rx="1" fill="#C9A96E" transform="rotate(247.5)"/>
+            <rect x="-2" y="-30" width="4" height="6" rx="1" fill="#C9A96E" transform="rotate(270)"/>
+            <rect x="-2" y="-30" width="4" height="6" rx="1" fill="#C9A96E" transform="rotate(292.5)"/>
+            <rect x="-2" y="-30" width="4" height="6" rx="1" fill="#C9A96E" transform="rotate(315)"/>
+            <rect x="-2" y="-30" width="4" height="6" rx="1" fill="#C9A96E" transform="rotate(337.5)"/>
+          </g>
+          <!-- Center arbor -->
+          <circle r="5" fill="#C9A96E"/>
+          <circle r="2" fill="#080808"/>
+        </g>
+
+        <!-- Bridge over barrel -->
+        <path d="M 148 190 Q 155 180 175 182 Q 185 200 175 220 Q 155 222 148 212 Z" fill="rgba(201,169,110,0.08)" stroke="rgba(201,169,110,0.25)" stroke-width="1"/>
+
+        <!-- Center wheel (gear train) -->
+        <g transform="translate(210,210)">
+          <circle r="18" fill="#0E0E0E" stroke="#C9A96E" stroke-width="1.2"/>
+          <circle r="13" fill="none" stroke="rgba(201,169,110,0.3)" stroke-width="0.8"/>
+          <rect x="-1.5" y="-20" width="3" height="5" rx="0.8" fill="#C9A96E" transform="rotate(0)"/>
+          <rect x="-1.5" y="-20" width="3" height="5" rx="0.8" fill="#C9A96E" transform="rotate(30)"/>
+          <rect x="-1.5" y="-20" width="3" height="5" rx="0.8" fill="#C9A96E" transform="rotate(60)"/>
+          <rect x="-1.5" y="-20" width="3" height="5" rx="0.8" fill="#C9A96E" transform="rotate(90)"/>
+          <rect x="-1.5" y="-20" width="3" height="5" rx="0.8" fill="#C9A96E" transform="rotate(120)"/>
+          <rect x="-1.5" y="-20" width="3" height="5" rx="0.8" fill="#C9A96E" transform="rotate(150)"/>
+          <rect x="-1.5" y="-20" width="3" height="5" rx="0.8" fill="#C9A96E" transform="rotate(180)"/>
+          <rect x="-1.5" y="-20" width="3" height="5" rx="0.8" fill="#C9A96E" transform="rotate(210)"/>
+          <rect x="-1.5" y="-20" width="3" height="5" rx="0.8" fill="#C9A96E" transform="rotate(240)"/>
+          <rect x="-1.5" y="-20" width="3" height="5" rx="0.8" fill="#C9A96E" transform="rotate(270)"/>
+          <rect x="-1.5" y="-20" width="3" height="5" rx="0.8" fill="#C9A96E" transform="rotate(300)"/>
+          <rect x="-1.5" y="-20" width="3" height="5" rx="0.8" fill="#C9A96E" transform="rotate(330)"/>
+          <circle r="4" fill="#C9A96E"/>
+          <circle r="1.5" fill="#080808"/>
+        </g>
+
+        <!-- Third wheel -->
+        <g transform="translate(236,186)">
+          <circle r="13" fill="#0E0E0E" stroke="#C9A96E" stroke-width="1"/>
+          <rect x="-1.2" y="-15" width="2.4" height="4" rx="0.6" fill="#C9A96E" transform="rotate(0)"/>
+          <rect x="-1.2" y="-15" width="2.4" height="4" rx="0.6" fill="#C9A96E" transform="rotate(36)"/>
+          <rect x="-1.2" y="-15" width="2.4" height="4" rx="0.6" fill="#C9A96E" transform="rotate(72)"/>
+          <rect x="-1.2" y="-15" width="2.4" height="4" rx="0.6" fill="#C9A96E" transform="rotate(108)"/>
+          <rect x="-1.2" y="-15" width="2.4" height="4" rx="0.6" fill="#C9A96E" transform="rotate(144)"/>
+          <rect x="-1.2" y="-15" width="2.4" height="4" rx="0.6" fill="#C9A96E" transform="rotate(180)"/>
+          <rect x="-1.2" y="-15" width="2.4" height="4" rx="0.6" fill="#C9A96E" transform="rotate(216)"/>
+          <rect x="-1.2" y="-15" width="2.4" height="4" rx="0.6" fill="#C9A96E" transform="rotate(252)"/>
+          <rect x="-1.2" y="-15" width="2.4" height="4" rx="0.6" fill="#C9A96E" transform="rotate(288)"/>
+          <rect x="-1.2" y="-15" width="2.4" height="4" rx="0.6" fill="#C9A96E" transform="rotate(324)"/>
+          <circle r="3.5" fill="#C9A96E"/>
+          <circle r="1.2" fill="#080808"/>
+        </g>
+
+        <!-- Fourth wheel (seconds) -->
+        <g transform="translate(250,230)">
+          <circle r="10" fill="#0E0E0E" stroke="#C9A96E" stroke-width="0.8"/>
+          <rect x="-1" y="-12" width="2" height="3.5" rx="0.5" fill="#C9A96E" transform="rotate(0)"/>
+          <rect x="-1" y="-12" width="2" height="3.5" rx="0.5" fill="#C9A96E" transform="rotate(45)"/>
+          <rect x="-1" y="-12" width="2" height="3.5" rx="0.5" fill="#C9A96E" transform="rotate(90)"/>
+          <rect x="-1" y="-12" width="2" height="3.5" rx="0.5" fill="#C9A96E" transform="rotate(135)"/>
+          <rect x="-1" y="-12" width="2" height="3.5" rx="0.5" fill="#C9A96E" transform="rotate(180)"/>
+          <rect x="-1" y="-12" width="2" height="3.5" rx="0.5" fill="#C9A96E" transform="rotate(225)"/>
+          <rect x="-1" y="-12" width="2" height="3.5" rx="0.5" fill="#C9A96E" transform="rotate(270)"/>
+          <rect x="-1" y="-12" width="2" height="3.5" rx="0.5" fill="#C9A96E" transform="rotate(315)"/>
+          <circle r="3" fill="#C9A96E"/>
+          <circle r="1" fill="#080808"/>
+        </g>
+
+        <!-- Escape wheel (escapement) -->
+        <g transform="translate(258,196)" id="escape-wheel-hero">
+          <circle r="11" fill="#0A0A0A" stroke="#9EA8B3" stroke-width="0.8"/>
+          <!-- Escape wheel teeth (angled) -->
+          <path d="M 0,-13 L 1.5,-9 L -1.5,-9 Z" fill="#9EA8B3" transform="rotate(0)"/>
+          <path d="M 0,-13 L 1.5,-9 L -1.5,-9 Z" fill="#9EA8B3" transform="rotate(20)"/>
+          <path d="M 0,-13 L 1.5,-9 L -1.5,-9 Z" fill="#9EA8B3" transform="rotate(40)"/>
+          <path d="M 0,-13 L 1.5,-9 L -1.5,-9 Z" fill="#9EA8B3" transform="rotate(60)"/>
+          <path d="M 0,-13 L 1.5,-9 L -1.5,-9 Z" fill="#9EA8B3" transform="rotate(80)"/>
+          <path d="M 0,-13 L 1.5,-9 L -1.5,-9 Z" fill="#9EA8B3" transform="rotate(100)"/>
+          <path d="M 0,-13 L 1.5,-9 L -1.5,-9 Z" fill="#9EA8B3" transform="rotate(120)"/>
+          <path d="M 0,-13 L 1.5,-9 L -1.5,-9 Z" fill="#9EA8B3" transform="rotate(140)"/>
+          <path d="M 0,-13 L 1.5,-9 L -1.5,-9 Z" fill="#9EA8B3" transform="rotate(160)"/>
+          <path d="M 0,-13 L 1.5,-9 L -1.5,-9 Z" fill="#9EA8B3" transform="rotate(180)"/>
+          <path d="M 0,-13 L 1.5,-9 L -1.5,-9 Z" fill="#9EA8B3" transform="rotate(200)"/>
+          <path d="M 0,-13 L 1.5,-9 L -1.5,-9 Z" fill="#9EA8B3" transform="rotate(220)"/>
+          <path d="M 0,-13 L 1.5,-9 L -1.5,-9 Z" fill="#9EA8B3" transform="rotate(240)"/>
+          <path d="M 0,-13 L 1.5,-9 L -1.5,-9 Z" fill="#9EA8B3" transform="rotate(260)"/>
+          <path d="M 0,-13 L 1.5,-9 L -1.5,-9 Z" fill="#9EA8B3" transform="rotate(280)"/>
+          <path d="M 0,-13 L 1.5,-9 L -1.5,-9 Z" fill="#9EA8B3" transform="rotate(300)"/>
+          <path d="M 0,-13 L 1.5,-9 L -1.5,-9 Z" fill="#9EA8B3" transform="rotate(320)"/>
+          <path d="M 0,-13 L 1.5,-9 L -1.5,-9 Z" fill="#9EA8B3" transform="rotate(340)"/>
+          <circle r="2.5" fill="#9EA8B3"/>
+        </g>
+
+        <!-- Pallet fork -->
+        <g transform="translate(248,208)">
+          <path d="M -3,0 L 3,0 L 2,12 L -2,12 Z" fill="#9EA8B3" opacity="0.7"/>
+          <path d="M -3,0 L -12,-8 L -10,-12 L -1,-4 Z" fill="#9EA8B3" opacity="0.7"/>
+          <path d="M 3,0 L 12,-4 L 13,0 L 4,4 Z" fill="#9EA8B3" opacity="0.7"/>
+          <circle r="2" fill="#9EA8B3"/>
+        </g>
+
+        <!-- Balance wheel (with hairspring) -->
+        <g transform="translate(270,218)" id="balance-hero">
+          <circle r="16" fill="none" stroke="#9EA8B3" stroke-width="1.5"/>
+          <!-- Balance wheel spokes -->
+          <line x1="-16" y1="0" x2="16" y2="0" stroke="#9EA8B3" stroke-width="1.2"/>
+          <line x1="0" y1="-16" x2="0" y2="16" stroke="#9EA8B3" stroke-width="1.2"/>
+          <line x1="-11.3" y1="-11.3" x2="11.3" y2="11.3" stroke="#9EA8B3" stroke-width="0.8" opacity="0.5"/>
+          <line x1="11.3" y1="-11.3" x2="-11.3" y2="11.3" stroke="#9EA8B3" stroke-width="0.8" opacity="0.5"/>
+          <!-- Hairspring spiral -->
+          <path d="M 0,0 Q 3,-4 6,-2 Q 9,2 6,6 Q 2,9 -3,7 Q -8,4 -8,-2 Q -6,-9 0,-10 Q 8,-10 11,-3 Q 12,5 6,11" fill="none" stroke="rgba(158,168,179,0.5)" stroke-width="0.6"/>
+          <!-- Ruby jewel -->
+          <circle r="2.5" fill="#9B2335"/>
+          <circle r="1" fill="#FF6B6B" opacity="0.8"/>
+        </g>
+
+        <!-- Decorative bridge (cock over balance) -->
+        <path d="M 252 202 Q 262 194 278 196 Q 290 200 290 216 Q 290 234 276 238 Q 262 240 252 232 Q 244 226 244 216 Q 244 208 252 202 Z" fill="none" stroke="rgba(201,169,110,0.3)" stroke-width="1.2"/>
+
+        <!-- Roman numeral hour indices -->
+        <g transform="translate(210,210)" fill="var(--gold)" font-family="Cormorant Garamond, serif" font-size="10" text-anchor="middle" dominant-baseline="middle">
+          <text transform="translate(0,-70)">XII</text>
+          <text transform="translate(35,-61)">I</text>
+          <text transform="translate(61,-35)">II</text>
+          <text transform="translate(70,0)">III</text>
+          <text transform="translate(61,35)">IV</text>
+          <text transform="translate(35,61)">V</text>
+          <text transform="translate(0,70)">VI</text>
+          <text transform="translate(-35,61)">VII</text>
+          <text transform="translate(-61,35)">VIII</text>
+          <text transform="translate(-70,0)">IX</text>
+          <text transform="translate(-61,-35)">X</text>
+          <text transform="translate(-35,-61)">XI</text>
+        </g>
+
+        <!-- Brand name -->
+        <text x="210" y="255" text-anchor="middle" font-family="'Bebas Neue', sans-serif" font-size="8" fill="rgba(201,169,110,0.6)" letter-spacing="4">CHRONOS</text>
+        <text x="210" y="264" text-anchor="middle" font-family="'Montserrat', sans-serif" font-size="5" fill="rgba(201,169,110,0.3)" letter-spacing="3">GENÈVE · SWISS MADE</text>
+
+        <!-- Hour hand -->
+        <g transform="translate(210,210) rotate(-60)" id="hour-hand">
+          <path d="M -2.5,8 L 2.5,8 L 1.5,-52 L 0,-58 L -1.5,-52 Z" fill="#E8C98A"/>
+          <rect x="-2" y="-52" width="4" height="20" rx="1" fill="rgba(232,201,138,0.3)"/>
+        </g>
+
+        <!-- Minute hand -->
+        <g transform="translate(210,210) rotate(120)" id="minute-hand">
+          <path d="M -1.8,10 L 1.8,10 L 1,-68 L 0,-74 L -1,-68 Z" fill="#E8C98A"/>
+        </g>
+
+        <!-- Second hand -->
+        <g transform="translate(210,210) rotate(200)" id="second-hand">
+          <rect x="-0.6" y="-72" width="1.2" height="78" rx="0.6" fill="#C9191E"/>
+          <circle cy="10" r="3" fill="none" stroke="#C9191E" stroke-width="1"/>
+        </g>
+
+        <!-- Center cap -->
+        <circle cx="210" cy="210" r="4" fill="url(#caseGrad)"/>
+        <circle cx="210" cy="210" r="2" fill="#080808"/>
+
+        <!-- Sapphire crystal (glass reflection) -->
+        <circle cx="210" cy="210" r="84" fill="url(#glassGrad)"/>
+        <!-- Reflection highlight -->
+        <ellipse cx="185" cy="175" rx="28" ry="16" fill="rgba(255,255,255,0.04)" transform="rotate(-30, 185, 175)"/>
+
+        <!-- Crown -->
+        <rect x="318" y="204" width="16" height="12" rx="4" fill="url(#caseGrad)"/>
+        <rect x="320" y="206" width="12" height="8" rx="3" fill="none" stroke="rgba(201,169,110,0.5)" stroke-width="0.5"/>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- EXPLODE SECTION -->
+<section id="explode-wrapper">
+  <div id="explode-sticky">
+    <div id="explode-stage">
+      <!-- Parts will be drawn by JS canvas -->
+      <canvas id="explode-canvas" width="520" height="520"></canvas>
+    </div>
+
+    <!-- Step labels -->
+    <div class="step-label" id="step-label">
+      <div class="step-num" id="step-num">STEP 01 / 07</div>
+      <div class="step-name" id="step-name">Main Plate</div>
+      <div class="step-desc" id="step-desc">The foundation of the movement — precision machined from a solid brass alloy</div>
+    </div>
+
+    <!-- Right side detail -->
+    <div style="position:fixed; right:60px; bottom:120px; opacity:0; text-align:right;" id="side-detail">
+      <div style="font-size:10px; letter-spacing:3px; color:rgba(201,169,110,0.5); margin-bottom:8px;">MATERIAL</div>
+      <div id="side-material" style="font-family:'Cormorant Garamond',serif; font-size:24px; color:var(--white); font-weight:300;">Brass Alloy</div>
+    </div>
+  </div>
+</section>
+
+<!-- SPECS -->
+<section id="specs">
+  <div style="max-width:1200px; margin:0 auto;">
+    <div class="section-label">Technical Mastery</div>
+    <h2 class="section-title">Architecture of<br><em style="font-style:italic; color:var(--gold-light);">Perfection</em></h2>
+    <div class="specs-grid">
+      <div class="spec-item">
+        <div class="spec-value">28,800</div>
+        <div class="spec-label">Vibrations / Hour</div>
+      </div>
+      <div class="spec-item">
+        <div class="spec-value">72h</div>
+        <div class="spec-label">Power Reserve</div>
+      </div>
+      <div class="spec-item">
+        <div class="spec-value">312</div>
+        <div class="spec-label">Individual Components</div>
+      </div>
+      <div class="spec-item">
+        <div class="spec-value">42mm</div>
+        <div class="spec-label">Case Diameter</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FINALE -->
+<section id="finale">
+  <div class="finale-content">
+    <div class="section-label" style="margin-bottom:24px;">Acquire the Legend</div>
+    <h2 class="finale-title">Own Time Itself</h2>
+    <p style="font-size:13px; letter-spacing:2px; color:rgba(245,240,232,0.4); margin-bottom:48px;">Limited to 88 numbered pieces annually</p>
+    <a href="#" class="btn-gold"><span>Reserve Your Piece</span></a>
+  </div>
+</section>
+
+<script>
+// ─── CURSOR ────────────────────────────────────────────────────────────────
+const cursor = document.getElementById('cursor');
+const cursorRing = document.getElementById('cursor-ring');
+let mx = 0, my = 0, rx = 0, ry = 0;
+
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  cursor.style.left = mx + 'px';
+  cursor.style.top = my + 'px';
+});
+function animateCursor() {
+  rx += (mx - rx) * 0.12;
+  ry += (my - ry) * 0.12;
+  cursorRing.style.left = rx + 'px';
+  cursorRing.style.top = ry + 'px';
+  requestAnimationFrame(animateCursor);
+}
+animateCursor();
+
+document.querySelectorAll('a, button').forEach(el => {
+  el.addEventListener('mouseenter', () => {
+    cursor.style.width = '20px';
+    cursor.style.height = '20px';
+    cursor.style.background = 'transparent';
+    cursor.style.border = '1px solid var(--gold)';
+  });
+  el.addEventListener('mouseleave', () => {
+    cursor.style.width = '8px';
+    cursor.style.height = '8px';
+    cursor.style.background = 'var(--gold)';
+    cursor.style.border = 'none';
+  });
+});
+
+// ─── GSAP ──────────────────────────────────────────────────────────────────
+gsap.registerPlugin(ScrollTrigger);
+
+// Progress bar
+gsap.to('#progress-bar', {
+  width: '100%',
+  ease: 'none',
+  scrollTrigger: { trigger: 'body', start: 'top top', end: 'bottom bottom', scrub: true }
+});
+
+// HERO ANIMATIONS
+const tl = gsap.timeline({ delay: 0.3 });
+tl.to('#eyebrow', { opacity: 1, y: 0, duration: 1, ease: 'power3.out' }, 0.2)
+  .to('#htitle', { opacity: 1, y: 0, duration: 1.2, ease: 'power3.out' }, 0.5)
+  .to('#hsubtitle', { opacity: 1, y: 0, duration: 1, ease: 'power3.out' }, 0.9)
+  .to('#scrollhint', { opacity: 1, duration: 0.8 }, 1.4);
+
+gsap.set(['#eyebrow','#htitle','#hsubtitle'], { y: 30 });
+
+// Hero watch float
+gsap.to('#watch-stage', {
+  y: -20,
+  duration: 3,
+  ease: 'power1.inOut',
+  yoyo: true,
+  repeat: -1
+});
+
+// Mouse parallax on hero
+document.addEventListener('mousemove', e => {
+  const xc = (e.clientX / window.innerWidth - 0.5) * 20;
+  const yc = (e.clientY / window.innerHeight - 0.5) * 10;
+  gsap.to('#watch-stage', { x: xc, y: yc - 10, duration: 1.5, ease: 'power2.out', overwrite: 'auto' });
+  gsap.to('.hero-lines', { x: xc * 0.3, y: yc * 0.3, duration: 2, ease: 'power2.out' });
+});
+
+// Hero watch fade/scroll
+gsap.to('#hero', {
+  scrollTrigger: {
+    trigger: '#hero',
+    start: 'top top',
+    end: 'bottom top',
+    scrub: true
+  },
+  opacity: 0,
+  scale: 0.95
+});
+
+// Animate second hand continuously
+let secondAngle = 200;
+function tickSecond() {
+  secondAngle += 6;
+  const sh = document.getElementById('second-hand');
+  if (sh) sh.setAttribute('transform', `translate(210,210) rotate(${secondAngle})`);
+  setTimeout(tickSecond, 1000);
+}
+tickSecond();
+
+// Subtle escape wheel rotation
+let escapeAngle = 0;
+function rotateEscape() {
+  escapeAngle += 1.5;
+  const ew = document.getElementById('escape-wheel-hero');
+  if (ew) ew.setAttribute('transform', `translate(258,196) rotate(${escapeAngle})`);
+  const bw = document.getElementById('balance-hero');
+  if (bw) {
+    const osc = Math.sin(Date.now() / 200) * 30;
+    bw.setAttribute('transform', `translate(270,218) rotate(${osc})`);
+  }
+  requestAnimationFrame(rotateEscape);
+}
+rotateEscape();
+
+// Barrel rotation
+let barrelAngle = 0;
+function rotateBarrel() {
+  barrelAngle += 0.05;
+  const bt = document.getElementById('barrel-teeth');
+  if (bt) bt.setAttribute('transform', `rotate(${barrelAngle})`);
+  requestAnimationFrame(rotateBarrel);
+}
+rotateBarrel();
+
+// ─── EXPLODE CANVAS ANIMATION ──────────────────────────────────────────────
+const canvas = document.getElementById('explode-canvas');
+const ctx = canvas.getContext('2d');
+const CX = 260, CY = 260;
+
+const GOLD = '#C9A96E';
+const GOLD_L = '#E8C98A';
+const STEEL = '#9EA8B3';
+const RUBY = '#9B2335';
+const BG_DARK = '#0A0A0A';
+
+// Parts data: { id, label, material, desc, draw(ctx, progress, floatPhase) }
+const parts = [
+  {
+    id: 'plate', label: 'Main Plate', material: 'Brass Alloy',
+    desc: 'The foundation of the movement — precision machined from a solid brass alloy',
+    color: GOLD,
+    baseX: CX, baseY: CY,
+    explodeX: 0, explodeY: 40,
+    draw(ctx, p, t) {
+      const x = lerp(CX + this.explodeX * (1-p), CX, p);
+      const y = lerp(CY + this.explodeY * (1-p), CY, p);
+      const a = lerp(-0.15 * (1-p), 0, p);
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(a);
+      // Main plate disc
+      ctx.beginPath();
+      ctx.arc(0, 0, 100, 0, Math.PI*2);
+      ctx.strokeStyle = GOLD;
+      ctx.lineWidth = 2;
+      ctx.setLineDash([8,4]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      // Inner ring
+      ctx.beginPath();
+      ctx.arc(0, 0, 92, 0, Math.PI*2);
+      ctx.strokeStyle = 'rgba(201,169,110,0.3)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+      // Plate surface
+      ctx.beginPath();
+      ctx.arc(0, 0, 90, 0, Math.PI*2);
+      ctx.fillStyle = 'rgba(10,10,10,0.7)';
+      ctx.fill();
+      // Engraving pattern (crosshatch)
+      ctx.save();
+      ctx.clip();
+      ctx.beginPath();
+      ctx.arc(0, 0, 90, 0, Math.PI*2);
+      ctx.clip();
+      for(let i=-90; i<90; i+=8) {
+        ctx.beginPath();
+        ctx.moveTo(i, -90); ctx.lineTo(i, 90);
+        ctx.strokeStyle = 'rgba(201,169,110,0.04)';
+        ctx.lineWidth = 0.5;
+        ctx.stroke();
+      }
+      ctx.restore();
+      // Screw holes (4 corners)
+      [[-60,-60],[60,-60],[60,60],[-60,60]].forEach(([sx,sy]) => {
+        ctx.beginPath(); ctx.arc(sx, sy, 4, 0, Math.PI*2);
+        ctx.strokeStyle = GOLD; ctx.lineWidth=1; ctx.stroke();
+        ctx.beginPath(); ctx.arc(sx, sy, 1.5, 0, Math.PI*2);
+        ctx.fillStyle = GOLD; ctx.fill();
+      });
+      // Jewel settings outline
+      [[-35,0],[0,0],[26,-24],[40,-20],[48,8],[60,18]].forEach(([jx,jy]) => {
+        ctx.beginPath(); ctx.arc(jx, jy, 5, 0, Math.PI*2);
+        ctx.strokeStyle = 'rgba(201,169,110,0.3)'; ctx.lineWidth=0.8; ctx.stroke();
+      });
+      // Label
+      drawLabel(ctx, 0, -108, 'MAIN PLATE', 9);
+      ctx.restore();
+    }
+  },
+  {
+    id: 'barrel', label: 'Mainspring Barrel', material: 'Tempered Steel',
+    desc: 'The energy reservoir — stores 72 hours of power in a coiled mainspring',
+    color: GOLD,
+    baseX: CX-35, baseY: CY,
+    explodeX: -80, explodeY: -20,
+    draw(ctx, p, t) {
+      const x = lerp(CX + this.explodeX * (1-p), CX - 35, p);
+      const y = lerp(CY + this.explodeY * (1-p), CY, p);
+      const a = lerp(0.3*(1-p), 0, p);
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(a + t * 0.003);
+      // Barrel gear teeth
+      const teeth = 16, r = 30;
+      for(let i=0; i<teeth; i++) {
+        const angle = (i/teeth)*Math.PI*2;
+        const tx = Math.cos(angle)*r, ty = Math.sin(angle)*r;
+        ctx.save();
+        ctx.translate(tx, ty); ctx.rotate(angle);
+        ctx.fillStyle = GOLD_L;
+        roundRect(ctx, -2, -5, 4, 7, 1);
+        ctx.fill();
+        ctx.restore();
+      }
+      // Barrel body
+      ctx.beginPath(); ctx.arc(0, 0, 26, 0, Math.PI*2);
+      ctx.fillStyle = '#1A1208'; ctx.fill();
+      ctx.strokeStyle = GOLD; ctx.lineWidth=1.5; ctx.stroke();
+      ctx.beginPath(); ctx.arc(0, 0, 20, 0, Math.PI*2);
+      ctx.strokeStyle = 'rgba(201,169,110,0.3)'; ctx.lineWidth=0.8; ctx.stroke();
+      ctx.beginPath(); ctx.arc(0, 0, 14, 0, Math.PI*2);
+      ctx.fillStyle = '#0E0A04'; ctx.fill();
+      ctx.strokeStyle = GOLD; ctx.lineWidth=1; ctx.stroke();
+      // Mainspring coil representation
+      for(let s=1; s<=4; s++) {
+        ctx.beginPath();
+        ctx.arc(0, 0, s*2.5+2, 0, Math.PI*2);
+        ctx.strokeStyle = `rgba(201,169,110,${0.6-s*0.1})`; ctx.lineWidth=0.6; ctx.stroke();
+      }
+      // Arbor
+      ctx.beginPath(); ctx.arc(0, 0, 4, 0, Math.PI*2);
+      ctx.fillStyle=GOLD; ctx.fill();
+      ctx.beginPath(); ctx.arc(0, 0, 1.8, 0, Math.PI*2);
+      ctx.fillStyle='#080808'; ctx.fill();
+      ctx.restore();
+    }
+  },
+  {
+    id: 'geartrain', label: 'Gear Train', material: 'Brass & Steel',
+    desc: 'Center, third, and fourth wheels transmit power from barrel to escapement',
+    color: GOLD,
+    baseX: CX, baseY: CY,
+    explodeX: 30, explodeY: -60,
+    draw(ctx, p, t) {
+      const baseX = lerp(CX + this.explodeX*(1-p), CX, p);
+      const baseY = lerp(CY + this.explodeY*(1-p), CY, p);
+      const a = lerp(-0.2*(1-p), 0, p);
+      ctx.save();
+      ctx.translate(baseX, baseY);
+      ctx.rotate(a);
+      // Gear train bridge
+      ctx.beginPath();
+      ctx.moveTo(-20,-30); ctx.lineTo(50,-30); ctx.lineTo(55,30); ctx.lineTo(-15,30); ctx.closePath();
+      ctx.strokeStyle = 'rgba(201,169,110,0.25)'; ctx.lineWidth=1; ctx.stroke();
+      ctx.fillStyle = 'rgba(201,169,110,0.04)'; ctx.fill();
+      // Center wheel
+      drawGear(ctx, 0, 0, 18, 12, GOLD, t * 0.002, 18);
+      // Third wheel
+      drawGear(ctx, 26, -24, 13, 10, GOLD, -t * 0.004, 10);
+      // Fourth wheel
+      drawGear(ctx, 40, 20, 10, 8, GOLD, t * 0.008, 8);
+      ctx.restore();
+    }
+  },
+  {
+    id: 'escapement', label: 'Escapement', material: 'Steel & Ruby',
+    desc: 'The heart controller — escape wheel and pallet fork regulate energy release',
+    color: STEEL,
+    baseX: CX+48, baseY: CY-14,
+    explodeX: 90, explodeY: -70,
+    draw(ctx, p, t) {
+      const x = lerp(CX + this.explodeX*(1-p), CX+48, p);
+      const y = lerp(CY + this.explodeY*(1-p), CY-14, p);
+      ctx.save();
+      ctx.translate(x, y);
+      // Escape wheel
+      const escAngle = t * 0.008;
+      ctx.save();
+      ctx.rotate(escAngle);
+      drawEscapeWheel(ctx, 0, 0, 11);
+      ctx.restore();
+      // Pallet fork
+      const pfAngle = Math.sin(t * 0.02) * 0.25;
+      ctx.save();
+      ctx.translate(-10, 8);
+      ctx.rotate(pfAngle);
+      drawPalletFork(ctx);
+      ctx.restore();
+      // Ruby pallet stones
+      [[-13,5],[13,5]].forEach(([rx,ry]) => {
+        ctx.beginPath(); ctx.arc(rx, ry, 2.5, 0, Math.PI*2);
+        ctx.fillStyle=RUBY; ctx.fill();
+        ctx.beginPath(); ctx.arc(rx-0.5, ry-0.5, 1, 0, Math.PI*2);
+        ctx.fillStyle='rgba(255,100,100,0.6)'; ctx.fill();
+      });
+      ctx.restore();
+    }
+  },
+  {
+    id: 'balance', label: 'Balance Wheel', material: 'Glucydur Alloy',
+    desc: 'Oscillating at 28,800 vph, the balance wheel divides time into equal beats',
+    color: STEEL,
+    baseX: CX+60, baseY: CY+8,
+    explodeX: 110, explodeY: 60,
+    draw(ctx, p, t) {
+      const x = lerp(CX + this.explodeX*(1-p), CX+60, p);
+      const y = lerp(CY + this.explodeY*(1-p), CY+8, p);
+      ctx.save();
+      ctx.translate(x, y);
+      const osc = Math.sin(t * 0.022) * 35 * (Math.PI/180);
+      ctx.rotate(osc);
+      // Hairspring
+      for(let i=1; i<=4; i++) {
+        ctx.beginPath();
+        ctx.arc(0, 0, i*4, 0, Math.PI*1.8);
+        ctx.strokeStyle=`rgba(158,168,179,${0.7-i*0.1})`; ctx.lineWidth=0.5; ctx.stroke();
+      }
+      // Balance wheel rim
+      ctx.beginPath(); ctx.arc(0, 0, 16, 0, Math.PI*2);
+      ctx.strokeStyle=STEEL; ctx.lineWidth=1.8; ctx.stroke();
+      // Spokes
+      for(let i=0; i<4; i++) {
+        const sa = (i/4)*Math.PI*2;
+        ctx.beginPath();
+        ctx.moveTo(0,0); ctx.lineTo(Math.cos(sa)*15, Math.sin(sa)*15);
+        ctx.strokeStyle=STEEL; ctx.lineWidth=1.2; ctx.stroke();
+      }
+      // Timing screws on rim
+      for(let i=0; i<8; i++) {
+        const sa = (i/8)*Math.PI*2;
+        ctx.beginPath(); ctx.arc(Math.cos(sa)*16, Math.sin(sa)*16, 1.5, 0, Math.PI*2);
+        ctx.fillStyle=GOLD; ctx.fill();
+      }
+      // Center jewel
+      ctx.beginPath(); ctx.arc(0, 0, 3, 0, Math.PI*2);
+      ctx.fillStyle=RUBY; ctx.fill();
+      ctx.beginPath(); ctx.arc(-0.5, -0.5, 1.2, 0, Math.PI*2);
+      ctx.fillStyle='rgba(255,80,80,0.7)'; ctx.fill();
+      ctx.restore();
+    }
+  },
+  {
+    id: 'dial', label: 'Skeleton Dial', material: 'Sapphire Crystal',
+    desc: 'Open-worked dial reveals the movement — framed in 18k rose gold indices',
+    color: GOLD,
+    baseX: CX, baseY: CY,
+    explodeX: -20, explodeY: -80,
+    draw(ctx, p, t) {
+      const x = lerp(CX + this.explodeX*(1-p), CX, p);
+      const y = lerp(CY + this.explodeY*(1-p), CY, p);
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.globalAlpha = 0.5 + p*0.5;
+      // Skeleton ring
+      ctx.beginPath(); ctx.arc(0, 0, 82, 0, Math.PI*2);
+      ctx.strokeStyle='rgba(201,169,110,0.6)'; ctx.lineWidth=2; ctx.stroke();
+      // Hour indices
+      const romans = ['XII','I','II','III','IV','V','VI','VII','VIII','IX','X','XI'];
+      romans.forEach((r, i) => {
+        const ang = (i/12)*Math.PI*2 - Math.PI/2;
+        const ix = Math.cos(ang)*70, iy = Math.sin(ang)*70;
+        ctx.save();
+        ctx.translate(ix, iy);
+        ctx.font = '10px Cormorant Garamond, serif';
+        ctx.fillStyle = GOLD;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(r, 0, 0);
+        ctx.restore();
+      });
+      // Minute track
+      for(let m=0; m<60; m++) {
+        const ang = (m/60)*Math.PI*2 - Math.PI/2;
+        const r1 = m%5===0 ? 77 : 80;
+        ctx.beginPath();
+        ctx.moveTo(Math.cos(ang)*r1, Math.sin(ang)*r1);
+        ctx.lineTo(Math.cos(ang)*82, Math.sin(ang)*82);
+        ctx.strokeStyle = GOLD;
+        ctx.lineWidth = m%5===0 ? 1.5 : 0.7;
+        ctx.stroke();
+      }
+      // Brand
+      ctx.font='7px Bebas Neue, sans-serif';
+      ctx.fillStyle='rgba(201,169,110,0.7)';
+      ctx.textAlign='center';
+      ctx.letterSpacing='4px';
+      ctx.fillText('CHRONOS', 0, 40);
+      ctx.font='5px Montserrat, sans-serif';
+      ctx.fillStyle='rgba(201,169,110,0.3)';
+      ctx.fillText('GENÈVE · SWISS MADE', 0, 50);
+      ctx.restore();
+    }
+  },
+  {
+    id: 'hands', label: 'Watch Hands', material: '18k Rose Gold',
+    desc: 'Hour, minute, and second hands — hand-polished and blued to perfection',
+    color: GOLD,
+    baseX: CX, baseY: CY,
+    explodeX: 20, explodeY: -100,
+    draw(ctx, p, t) {
+      const x = lerp(CX + this.explodeX*(1-p), CX, p);
+      const y = lerp(CY + this.explodeY*(1-p), CY, p);
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.globalAlpha = 0.4 + p*0.6;
+      // Hour hand (pointing ~10:10)
+      ctx.save();
+      ctx.rotate(-Math.PI/6 * 2); // 10 o'clock
+      drawHand(ctx, -52, 8, 4, GOLD_L, 'hour');
+      ctx.restore();
+      // Minute hand
+      ctx.save();
+      ctx.rotate(Math.PI/6 * 2); // 2 o'clock ish
+      drawHand(ctx, -70, 8, 3, GOLD_L, 'minute');
+      ctx.restore();
+      // Second hand
+      ctx.save();
+      ctx.rotate(t * 0.006);
+      // Lume seconds hand
+      ctx.fillStyle='#C9191E';
+      ctx.fillRect(-1, -72, 2, 78);
+      ctx.beginPath(); ctx.arc(0, 8, 3, 0, Math.PI*2);
+      ctx.strokeStyle='#C9191E'; ctx.lineWidth=1; ctx.stroke();
+      ctx.restore();
+      // Center cap
+      ctx.beginPath(); ctx.arc(0,0,5,0,Math.PI*2);
+      ctx.fillStyle=GOLD; ctx.fill();
+      ctx.beginPath(); ctx.arc(0,0,2,0,Math.PI*2);
+      ctx.fillStyle='#080808'; ctx.fill();
+      ctx.restore();
+    }
+  },
+  {
+    id: 'case', label: 'Outer Case', material: 'Stainless Steel & Gold',
+    desc: '42mm case — 316L surgical steel with 18k rose gold PVD coating',
+    color: GOLD,
+    baseX: CX, baseY: CY,
+    explodeX: 0, explodeY: -30,
+    draw(ctx, p, t) {
+      const x = lerp(CX + this.explodeX*(1-p), CX, p);
+      const y = lerp(CY + this.explodeY*(1-p), CY, p);
+      const scale = lerp(1.15, 1, p);
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.scale(scale, scale);
+      // Lugs
+      const lugPositions = [
+        {x: -22, y: -95, w: 44, h: 22, rx: 5},
+        {x: -22, y: 73, w: 44, h: 22, rx: 5},
+      ];
+      lugPositions.forEach(l => {
+        ctx.save();
+        ctx.shadowColor = 'rgba(201,169,110,0.3)';
+        ctx.shadowBlur = 8;
+        roundRect(ctx, l.x, l.y, l.w, l.h, l.rx);
+        const grd = ctx.createLinearGradient(l.x, 0, l.x+l.w, 0);
+        grd.addColorStop(0, '#5A3E0A');
+        grd.addColorStop(0.4, GOLD_L);
+        grd.addColorStop(1, '#5A3E0A');
+        ctx.fillStyle = grd;
+        ctx.fill();
+        ctx.restore();
+      });
+      // Side lugs
+      [[-90,-22,22,44],[68,-22,22,44]].forEach(([lx,ly,lw,lh]) => {
+        const grd = ctx.createLinearGradient(0, ly, 0, ly+lh);
+        grd.addColorStop(0,'#5A3E0A');
+        grd.addColorStop(0.5,GOLD_L);
+        grd.addColorStop(1,'#5A3E0A');
+        roundRect(ctx, lx, ly, lw, lh, 4);
+        ctx.fillStyle=grd; ctx.fill();
+      });
+      // Case ring
+      ctx.beginPath(); ctx.arc(0, 0, 100, 0, Math.PI*2);
+      const caseGrad = ctx.createRadialGradient(-25,-25,10,0,0,100);
+      caseGrad.addColorStop(0, GOLD_L);
+      caseGrad.addColorStop(0.5, GOLD);
+      caseGrad.addColorStop(1, '#3A2408');
+      ctx.fillStyle = caseGrad;
+      ctx.fill();
+      // Inner case
+      ctx.beginPath(); ctx.arc(0, 0, 90, 0, Math.PI*2);
+      ctx.fillStyle='#1C1208'; ctx.fill();
+      // Glass reflection
+      ctx.beginPath(); ctx.arc(0, 0, 84, 0, Math.PI*2);
+      const glassGrad = ctx.createRadialGradient(-20,-20,5,0,0,84);
+      glassGrad.addColorStop(0,'rgba(255,255,255,0.12)');
+      glassGrad.addColorStop(1,'rgba(255,255,255,0.01)');
+      ctx.fillStyle=glassGrad; ctx.fill();
+      // Crown
+      ctx.save();
+      const crownGrad = ctx.createLinearGradient(85, -6, 98, 6);
+      crownGrad.addColorStop(0,'#3A2408'); crownGrad.addColorStop(0.5,GOLD_L); crownGrad.addColorStop(1,'#3A2408');
+      roundRect(ctx, 88, -6, 14, 12, 4);
+      ctx.fillStyle=crownGrad; ctx.fill();
+      ctx.restore();
+      ctx.restore();
+    }
+  }
+];
+
+const steps = [
+  { partIds: ['plate'], num: '01 / 07', name: 'Main Plate', desc: 'The foundation — precision machined from solid brass alloy', mat: 'Brass Alloy' },
+  { partIds: ['plate','barrel'], num: '02 / 07', name: 'Mainspring Barrel', desc: 'The energy reservoir stores 72 hours of power in a coiled mainspring', mat: 'Tempered Steel' },
+  { partIds: ['plate','barrel','geartrain'], num: '03 / 07', name: 'Gear Train', desc: 'Center, third & fourth wheels transmit energy to the escapement', mat: 'Brass & Steel' },
+  { partIds: ['plate','barrel','geartrain','escapement'], num: '04 / 07', name: 'Escapement', desc: 'Escape wheel and pallet fork regulate the release of energy', mat: 'Steel & Ruby' },
+  { partIds: ['plate','barrel','geartrain','escapement','balance'], num: '05 / 07', name: 'Balance Wheel', desc: 'Oscillating at 28,800 vph — dividing time into equal beats', mat: 'Glucydur Alloy' },
+  { partIds: ['plate','barrel','geartrain','escapement','balance','dial'], num: '06 / 07', name: 'Skeleton Dial', desc: 'Open-worked dial reveals the movement through sapphire crystal', mat: 'Sapphire Crystal' },
+  { partIds: ['plate','barrel','geartrain','escapement','balance','dial','hands'], num: '07 / 07', name: 'Watch Hands', desc: 'Hour, minute & second hands — hand-polished 18k rose gold', mat: '18k Rose Gold' },
+  { partIds: ['plate','barrel','geartrain','escapement','balance','dial','hands','case'], num: 'COMPLETE', name: 'Complete Movement', desc: 'All 312 components unite in perfect mechanical harmony', mat: 'Swiss Made' }
+];
+
+// Helper functions
+function lerp(a, b, t) { return a + (b-a)*t; }
+
+function drawLabel(ctx, x, y, text, size=9) {
+  ctx.font = `${size}px Bebas Neue, sans-serif`;
+  ctx.fillStyle = 'rgba(201,169,110,0.4)';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(text, x, y);
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x+r, y);
+  ctx.lineTo(x+w-r, y);
+  ctx.quadraticCurveTo(x+w, y, x+w, y+r);
+  ctx.lineTo(x+w, y+h-r);
+  ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+  ctx.lineTo(x+r, y+h);
+  ctx.quadraticCurveTo(x, y+h, x, y+h-r);
+  ctx.lineTo(x, y+r);
+  ctx.quadraticCurveTo(x, y, x+r, y);
+  ctx.closePath();
+}
+
+function drawGear(ctx, x, y, r, innerR, color, angle, teeth) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(angle);
+  // Teeth
+  for(let i=0; i<teeth; i++) {
+    const a = (i/teeth)*Math.PI*2;
+    const tx = Math.cos(a)*r, ty = Math.sin(a)*r;
+    ctx.save();
+    ctx.translate(tx, ty); ctx.rotate(a);
+    roundRect(ctx, -1.5, -4, 3, 5, 0.8);
+    ctx.fillStyle = GOLD_L; ctx.fill();
+    ctx.restore();
+  }
+  ctx.beginPath(); ctx.arc(0, 0, innerR, 0, Math.PI*2);
+  ctx.fillStyle='#0E0E0E'; ctx.fill();
+  ctx.strokeStyle=color; ctx.lineWidth=1.2; ctx.stroke();
+  // Spokes
+  for(let i=0; i<4; i++) {
+    const a = (i/4)*Math.PI*2;
+    ctx.beginPath();
+    ctx.moveTo(Math.cos(a)*3, Math.sin(a)*3);
+    ctx.lineTo(Math.cos(a)*innerR, Math.sin(a)*innerR);
+    ctx.strokeStyle=`rgba(201,169,110,0.4)`; ctx.lineWidth=1; ctx.stroke();
+  }
+  ctx.beginPath(); ctx.arc(0, 0, 3.5, 0, Math.PI*2);
+  ctx.fillStyle=color; ctx.fill();
+  ctx.beginPath(); ctx.arc(0, 0, 1.5, 0, Math.PI*2);
+  ctx.fillStyle='#080808'; ctx.fill();
+  ctx.restore();
+}
+
+function drawEscapeWheel(ctx, x, y, r) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI*2);
+  ctx.strokeStyle=STEEL; ctx.lineWidth=0.8; ctx.stroke();
+  // Escape teeth (angled)
+  for(let i=0; i<18; i++) {
+    const a = (i/18)*Math.PI*2;
+    const tx = Math.cos(a)*(r+1), ty = Math.sin(a)*(r+1);
+    ctx.save(); ctx.translate(tx, ty); ctx.rotate(a+0.3);
+    ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(1.5,0); ctx.lineTo(0,-4); ctx.closePath();
+    ctx.fillStyle=STEEL; ctx.fill();
+    ctx.restore();
+  }
+  ctx.beginPath(); ctx.arc(0, 0, 2.5, 0, Math.PI*2);
+  ctx.fillStyle=STEEL; ctx.fill();
+  ctx.restore();
+}
+
+function drawPalletFork(ctx) {
+  ctx.save();
+  // Fork stem
+  ctx.fillStyle = 'rgba(158,168,179,0.8)';
+  roundRect(ctx, -2, -2, 4, 14, 1);
+  ctx.fill();
+  // Arms
+  ctx.beginPath();
+  ctx.moveTo(-2,0); ctx.lineTo(-14,-10); ctx.lineTo(-12,-14); ctx.lineTo(0,-3);
+  ctx.fillStyle='rgba(158,168,179,0.8)'; ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(2,0); ctx.lineTo(14,-6); ctx.lineTo(15,-2); ctx.lineTo(3,4);
+  ctx.fill();
+  ctx.beginPath(); ctx.arc(0,0,2,0,Math.PI*2);
+  ctx.fillStyle=STEEL; ctx.fill();
+  ctx.restore();
+}
+
+function drawHand(ctx, length, tailLen, width, color, type) {
+  ctx.fillStyle=color;
+  // Pointed tip shape
+  ctx.beginPath();
+  ctx.moveTo(-width/2, tailLen);
+  ctx.lineTo(width/2, tailLen);
+  ctx.lineTo(width/3, length+12);
+  ctx.lineTo(0, length);
+  ctx.lineTo(-width/3, length+12);
+  ctx.closePath();
+  ctx.fill();
+  // Lume window
+  if(type === 'hour') {
+    ctx.fillStyle='rgba(232,201,138,0.3)';
+    ctx.fillRect(-width/4, length*0.3, width/2, length*0.5);
+  }
+}
+
+// Explode animation state
+let scrollProgress = 0;
+let animT = 0;
+let currentStep = 0;
+
+function getStepProgress() {
+  const totalSteps = steps.length;
+  const s = scrollProgress * totalSteps;
+  const stepIdx = Math.min(Math.floor(s), totalSteps - 1);
+  const stepLocal = s - Math.floor(s);
+  return { stepIdx, stepLocal };
+}
+
+function drawScene(t) {
+  ctx.clearRect(0, 0, 520, 520);
+
+  const { stepIdx, stepLocal } = getStepProgress();
+
+  // Background glow
+  if (stepIdx >= 7) {
+    const grd = ctx.createRadialGradient(CX,CY,0,CX,CY,180);
+    grd.addColorStop(0,'rgba(201,169,110,0.08)');
+    grd.addColorStop(1,'transparent');
+    ctx.fillStyle=grd; ctx.fillRect(0,0,520,520);
+  }
+
+  const activeParts = steps[stepIdx]?.partIds || [];
+  const prevParts = stepIdx > 0 ? steps[stepIdx-1].partIds : [];
+  const newPart = activeParts.find(id => !prevParts.includes(id));
+
+  parts.forEach(part => {
+    const isActive = activeParts.includes(part.id);
+    const isNew = part.id === newPart;
+
+    if (!isActive) return;
+
+    let localP = isNew ? easeInOut(stepLocal) : 1;
+    if (stepIdx === 7) localP = easeInOut(stepLocal); // case closing
+
+    // Slight float for assembled parts
+    const floatOffset = isNew ? 0 : Math.sin(t * 0.001 + parts.indexOf(part) * 0.8) * 2;
+
+    ctx.save();
+    if (stepIdx < 7 || !isNew) {
+      ctx.translate(0, floatOffset);
+    }
+    // Snap glow effect for final assembly
+    if (stepIdx === 7 && localP > 0.85) {
+      ctx.shadowColor = 'rgba(201,169,110,0.6)';
+      ctx.shadowBlur = 30;
+    }
+    part.draw(ctx, localP, t);
+    ctx.restore();
+  });
+
+  // Update step label
+  if (steps[stepIdx]) {
+    updateLabel(steps[stepIdx], stepLocal, stepIdx);
+  }
+
+  // Assembled glow at end
+  if (stepIdx === 7 && stepLocal > 0.8) {
+    const glowAlpha = (stepLocal - 0.8) / 0.2 * 0.15;
+    const glow = ctx.createRadialGradient(CX,CY,50,CX,CY,140);
+    glow.addColorStop(0,`rgba(201,169,110,${glowAlpha})`);
+    glow.addColorStop(1,'transparent');
+    ctx.fillStyle=glow; ctx.fillRect(0,0,520,520);
+  }
+}
+
+function easeInOut(t) {
+  return t < 0.5 ? 2*t*t : -1+(4-2*t)*t;
+}
+
+let lastStep = -1;
+function updateLabel(step, prog, idx) {
+  if (idx !== lastStep) {
+    lastStep = idx;
+    gsap.to('#step-label', { opacity: 0, y: -10, duration: 0.2, onComplete: () => {
+      document.getElementById('step-num').textContent = 'STEP ' + step.num;
+      document.getElementById('step-name').textContent = step.name;
+      document.getElementById('step-desc').textContent = step.desc;
+      document.getElementById('side-material').textContent = step.mat;
+      gsap.to('#step-label', { opacity: 1, y: 0, duration: 0.4 });
+      gsap.to('#side-detail', { opacity: 1, duration: 0.4 });
+    }});
+  }
+}
+
+// Scroll trigger for explode
+ScrollTrigger.create({
+  trigger: '#explode-wrapper',
+  start: 'top top',
+  end: 'bottom bottom',
+  scrub: 1,
+  onUpdate: self => {
+    scrollProgress = self.progress;
+  },
+  onEnter: () => {
+    gsap.to('#step-label', { opacity: 1, duration: 0.5 });
+    gsap.to('#side-detail', { opacity: 1, duration: 0.5 });
+  },
+  onLeave: () => {
+    gsap.to(['#step-label','#side-detail'], { opacity: 0, duration: 0.5 });
+  },
+  onEnterBack: () => {
+    gsap.to(['#step-label','#side-detail'], { opacity: 1, duration: 0.3 });
+  },
+  onLeaveBack: () => {
+    gsap.to(['#step-label','#side-detail'], { opacity: 0, duration: 0.3 });
+  }
+});
+
+// Main render loop
+function loop(t) {
+  animT = t;
+  drawScene(t);
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+
+// Specs animation
+gsap.from('.spec-item', {
+  opacity: 0, y: 40,
+  stagger: 0.15,
+  duration: 1,
+  ease: 'power3.out',
+  scrollTrigger: {
+    trigger: '#specs',
+    start: 'top 70%'
+  }
+});
+gsap.from('.section-label, .section-title', {
+  opacity: 0, y: 30,
+  stagger: 0.2,
+  duration: 1,
+  ease: 'power3.out',
+  scrollTrigger: { trigger: '#specs', start: 'top 80%' }
+});
+
+// Finale
+gsap.from('.finale-content > *', {
+  opacity: 0, y: 40,
+  stagger: 0.2,
+  duration: 1.2,
+  ease: 'power3.out',
+  scrollTrigger: { trigger: '#finale', start: 'top 70%' }
+});
+</script>
+</body>
+</html>
